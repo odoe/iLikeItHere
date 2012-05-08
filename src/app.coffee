@@ -8,7 +8,4 @@ define [
     vm = new VM()
     vm.render()
 
-    dojo.addOnLoad ->
-      console.log 'dojo loaded'
-
   initialize: initialize

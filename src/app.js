@@ -5,10 +5,7 @@
     initialize = function() {
       var vm;
       vm = new VM();
-      vm.render();
-      return dojo.addOnLoad(function() {
-        return console.log('dojo loaded');
-      });
+      return vm.render();
     };
     return {
       initialize: initialize
