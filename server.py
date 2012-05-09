@@ -38,8 +38,8 @@ def get_document(id):
   return entity
 
 # handle static files
-@route('/src/:path#.+#', name='src')
+@route('/static/:path#.+#', name='static')
 def static(path):
-  return static_file(path, root='src')
+  return static_file(path, root='static')
 
 run(host='localhost', port=8080)
