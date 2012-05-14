@@ -7,7 +7,8 @@
       underscore: 'libs/underscore/underscore-min',
       backbone: 'libs/backbone/backbone-min',
       order: 'libs/require/order',
-      text: 'libs/require/text'
+      text: 'libs/require/text',
+      templates: '../templates'
     }
   });
 

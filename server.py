@@ -76,4 +76,8 @@ def get_document(id):
 def static(path):
   return static_file(path, root='static')
 
+@route('/img/:path#.+#', name='static')
+def static_img(path):
+  return static_file(path, root='static/img')
+
 run(host='localhost', port=8080)

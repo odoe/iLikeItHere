@@ -2,7 +2,7 @@
   <head>
     <meta content='text/html, charset=UTF-8' http-equiv='Content-Type' />
     <meta content='IE=7,IE=9' http-equiv='X-UA-Compatible' />
-    <!--<link href='stylesheets/main.css' rel='stylesheet' type='text/css' />-->
+    <link href='static/stylesheets/main.css' rel='stylesheet' type='text/css' />
    <title>{{ title }}</title>
     <body>
       <div id='container'>

@@ -1,0 +1,29 @@
+@import "external";
+@import "compass/reset";
+@import "compass/layout/stretching";
+@import "theme";
+
+#container {
+  @include stretch;
+}
+
+#map {
+  @include stretch(0,0,0,50px);
+}
+
+.sidebar {
+  background: $main_color;
+  width: 50px;
+  @include stretch-y(0,0);
+  text-align: center;
+  ul {
+    margin-top: 10px;
+    li {
+      a {
+        &:hover {
+          img { background: desaturate($main_color, 50%); }
+        }
+      }
+    }
+  }
+}
