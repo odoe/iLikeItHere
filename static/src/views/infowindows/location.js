@@ -17,7 +17,7 @@
       },
       onVote: function() {
         this.attr.votes++;
-        if (this.attr.votes > 5) this.trigger("upVote", this.attr.votes);
+        this.trigger("upVote", this.attr.votes);
         return this.render(this.attr);
       }
     });

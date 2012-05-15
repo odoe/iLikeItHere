@@ -1,4 +1,4 @@
-# Geo-Likes  #
+# iLikeItHere  #
 
 This is a test application using Python Bottle and MongoDB to
 serve up a mapping application built with Backbone.js and ESRI

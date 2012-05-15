@@ -34,6 +34,10 @@ def esri_to_geo(esrijson):
 
   geojson["features"] = feats
 
+  if len(feats) == 1:
+    for feat in feats:
+      return feat
+
   return geojson
 
 def extract(feature, esri_geom_type):

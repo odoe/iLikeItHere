@@ -4,5 +4,6 @@ define [
   'backbone'
 ], ($, _, Backbone) ->
   Vote = Backbone.Model.extend
+    idAttribute: "_id"
     url: ->
-      "documents/#{if @id then @id else ''}"
+      "documents/esrijs#{if @id then '/' + @id else ''}"

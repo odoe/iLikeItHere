@@ -13,7 +13,7 @@ db = connection.mydatabase
 @route('/')
 @view('home')
 def get_index():
-  return {'title': 'Demo'}
+  return {'title': 'I like it here!'}
 
 # I'm thinking I'll store the data
 # in mongodb as spatial features
@@ -37,11 +37,17 @@ def put_document():
 # This path will take an EsriJSON
 # and convert it to GeoJSON to save
 # to the db
-@route('/documents/esrijs', method='PUT')
+
+# THIS IS NOT BEING USED
+# BECAUSE I ASSIGN ID's IN MY CLIENT APP
+# LEFT IT IN AS A TEMPLATE FOR FUTURE METHODS
+@route('/documents/esrijs', method='POST')
 def put_documentesri():
   data = request.body.readline()
+  print data
   if not data:
     abort(400, 'No data received')
+  
   entity = json.loads(data)
   if not entity.has_key('_id'):
     abort(400, 'No _id specified')
@@ -53,7 +59,37 @@ def put_documentesri():
     db['documents'].save(geojs)
   except ValidationError as ve:
     abort(400, str(ve))
-  return geojs
+  result = geo_to_esri(geojs["features"])
+
+  return result
+
+# There are some serious hoops to
+# jumo thtough to manage between
+# sending updates as esrijson,
+# saving as geojson and making sure
+# results work clientside
+@route('/documents/esrijs/:id', method='PUT')
+def put_documentesribyid(id):
+  data = request.body.readline()
+  result = json.loads(data)
+  print data
+  entity = db['documents'].find_one({'_id':id})
+  if not entity:
+    entity = result
+    tmp = {}
+    tmp["features"] = [entity]
+    tmp["geometryType"] = entity["geometryType"]
+    geojs = esri_to_geo(tmp)
+    geojs["_id"] = entity["_id"]
+  else:
+    geojs = entity
+    geojs["properties"]["votes"] = result["attributes"]["votes"]
+
+  try:
+    db['documents'].save(geojs)
+  except ValidationError as ve:
+    abort(400, str(ve))
+  return result
 
 # Default request parameters will retrieve
 # data in GeoJSON format
@@ -71,10 +107,49 @@ def get_document(id):
     response = entity
   return response
 
+@route('/documents', method='GET')
+def get_document():
+  r = request.GET.get("type")
+  entity = db['documents'].find()
+
+  # this returns a list of individual features
+  # devs responsibility to build wrap in a
+  # FeatureCollection
+  # Sending ESRI JSON to be used in
+  # Backbone kind of blows
+  # Format doesn't play nice with Backbone Collection/Model
+  features = map(lambda x: x, entity)
+  featurecoll = {}
+  featurecoll["features"] = features
+  featurecoll["type"] = "FeatureCollection"
+  if not entity:
+    abort(404, 'No documents with id %s' % id)
+  if (r and r.lower() == 'esri'):
+    response = geo_to_esri(featurecoll)
+    for feat in response["features"]:
+      feat["_id"] = feat["attributes"]["_id"]
+
+    response = json.dumps(response["features"])
+  else:
+    response = featurecoll
+  return response
+
 # handle static files
 @route('/static/:path#.+#', name='static')
 def static(path):
   return static_file(path, root='static')
+
+@route('/src/:path#.+#', name='static')
+def static_src(path):
+  return static_file(path, root='static/src')
+
+@route('/stylesheets/:path#.+#', name='static')
+def static_styles(path):
+  return static_file(path, root='static/stylesheets')
+
+@route('/templates/:path#.+#', name='static')
+def static_templates(path):
+  return static_file(path, root='static/templates')
 
 @route('/img/:path#.+#', name='static')
 def static_img(path):

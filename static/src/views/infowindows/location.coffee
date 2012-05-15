@@ -18,5 +18,5 @@ define [
 
     onVote: ->
       @attr.votes++
-      if  @attr.votes > 5 then @trigger "upVote", @attr.votes
+      @trigger "upVote", @attr.votes
       @render @attr

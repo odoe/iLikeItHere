@@ -23,17 +23,23 @@ def geo_to_esri(geojson):
   # check for collection of features
   # and iterate as necessary
   attribute_fields = []
+  fields = []
   if geojson["type"] == "FeatureCollection":
     features = geojson["features"]
-    geo_type = features[0]["geometry"]["type"]
-    attribute_fields = features[0]["properties"]
-
+    geo_type = ""
+    attribute_fields = []
+    for t in features:
+      geo_type = t["geometry"]["type"]
+      attribute_fields = t["properties"]
+    fields = map(extract_field, attribute_fields)
     esri_features = map(extract, features)
   else:
     attribute_fields = geojson["properties"]
     geo_type = geojson["geometry"]["type"]
+    fields = extract_field(attribute_fields)
     esri_features = extract(geojson)
 
+  print attribute_fields
   fields = map(extract_field, attribute_fields)
   # everything should be ready to define for the
   # esri json
@@ -55,6 +61,8 @@ def extract(feature):
 
 def extract_field(attribute):
   # now we need the fields in the properties
+  # this function is not working as expected
+  # TODO - figure out how to make this work
   a = {}
   a["alias"] = attribute
   a["name"] = attribute
