@@ -26,7 +26,7 @@
             collection = new VoteCollection();
             return collection.fetch({
               data: $.param({
-                type: "esri"
+                f: "esri"
               }),
               success: function() {
                 console.log("jquery fetched!", collection);
@@ -94,7 +94,6 @@
             template = new esri.InfoTemplate('Vote!', info.render(attr).el);
             graphic = new esri.Graphic(evt.mapPoint, symbol, attr);
             graphic.setInfoTemplate(template);
-            _this.map.graphics.add(graphic);
             data = {};
             data.geometryType = "esriGeometryPoint";
             pt = esri.geometry.webMercatorToGeographic(evt.mapPoint);
@@ -108,7 +107,13 @@
             vote = new Vote();
             vote.save(data, {
               success: function(m) {
-                return console.log("vote was saved successfully", m.toJSON());
+                var response;
+                response = m.toJSON();
+                console.log("vote was saved successfully", response);
+                if (!response.error) return _this.map.graphics.add(graphic);
+              },
+              error: function(m, err) {
+                return console.log("Error in save", err);
               }
             });
             return info.on("upVote", function(count) {

@@ -28,7 +28,7 @@ define [
 
           collection = new VoteCollection()
           collection.fetch
-            data: $.param( type:"esri" )
+            data: $.param( f:"esri" )
             success: =>
               console.log "jquery fetched!", collection
               collection.each (model) =>
@@ -77,7 +77,6 @@ define [
           template = new esri.InfoTemplate 'Vote!', info.render(attr).el
           graphic = new esri.Graphic evt.mapPoint, symbol, attr
           graphic.setInfoTemplate template
-          @map.graphics.add graphic
 
           # MongoDB Spatial requires geographic coords, so
           # need to convert the point geometry
@@ -95,9 +94,13 @@ define [
           data.geometry = pt
           vote = new Vote()
           vote.save data, 
-            success: (m) ->
-              console.log "vote was saved successfully", m.toJSON()
-
+            success: (m) =>
+              response = m.toJSON()
+              console.log "vote was saved successfully", response
+              if not response.error
+                @map.graphics.add graphic
+            error: (m, err) ->
+              console.log "Error in save", err
           info.on "upVote", (count) =>
             vote.set
               attributes:{ votes: count }

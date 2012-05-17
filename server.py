@@ -4,6 +4,7 @@ from utils.geo_to_esri import geo_to_esri
 from utils.esri_to_geo import esri_to_geo
 from bottle import route, run, request, abort, static_file, view
 from pymongo import Connection
+from pymongo.son import SON
 
 connection = Connection('localhost', 27017)
 db = connection.mydatabase
@@ -81,6 +82,16 @@ def put_documentesribyid(id):
     tmp["geometryType"] = entity["geometryType"]
     geojs = esri_to_geo(tmp)
     geojs["_id"] = entity["_id"]
+
+    near_dict = {"$near": geojs["geometry"]["coordinates"]}
+    max_dict = max_dict = {"$maxDistance": 0.001}
+    q = SON(near_dict)
+    q.update(max_dict)
+    gq = {"geometry.coordinates": q}
+    check = db["documents"].find(gq)
+    print check
+    if check:
+      abort(400, {"success": False, "error": "Already exist"})
   else:
     geojs = entity
     geojs["properties"]["votes"] = result["attributes"]["votes"]
@@ -93,11 +104,11 @@ def put_documentesribyid(id):
 
 # Default request parameters will retrieve
 # data in GeoJSON format
-# ?type=esri will return results
+# ?f=esri will return results
 # in EsriJSON format
 @route('/documents/:id', method='GET')
 def get_document(id):
-  r = request.GET.get("type")
+  r = request.GET.get("f")
   entity = db['documents'].find_one({'_id':id})
   if not entity:
     abort(404, 'No documents with id %s' % id)
@@ -109,7 +120,7 @@ def get_document(id):
 
 @route('/documents', method='GET')
 def get_document():
-  r = request.GET.get("type")
+  r = request.GET.get("f")
   entity = db['documents'].find()
 
   # this returns a list of individual features
