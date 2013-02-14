@@ -64,6 +64,44 @@ def put_documentesri():
 
   return result
 
+# This will save geojson directly to Mongo
+@route('/documents/geojson', method='POST')
+def post_documentgeojson():
+  data = request.body.readline()
+  print data
+  if not data:
+    abort(400, 'No data received')
+  
+  entity = json.loads(data)
+  if not entity.has_key('_id'):
+    abort(400, 'No _id specified')
+
+  # remember, in this case
+  # entity is just geojson
+  try:
+    db['documents'].save(entity)
+  except ValidationError as ve:
+    abort(400, str(ve))
+  result = geo_to_esri(entity["features"])
+
+  return result
+
+# This service will convert geojson to esrijson
+@route('/convert/geojson2esri', method='POST')
+def convert_geojson2esri():
+  data = request.body.readline()
+  print data
+  if not data:
+    abort(400, 'No data received')
+
+  entity = json.loads(data)
+
+  # remember, in this case
+  # entity is just geojson
+  result = geo_to_esri(entity)
+
+  return result
+
 # There are some serious hoops to
 # jumo thtough to manage between
 # sending updates as esrijson,
